@@ -55,9 +55,26 @@ pub use self::{
 	iter::*,
 };
 
+#[doc = include_str!("../doc/slice/BitSlice.md")]
+pub unsized type BitSlice<T = usize, O = Lsb0>
+where
+	T: BitStore,
+	O: BitOrder,
+{
+	/// The ordering of bits within a `T` register.
+	_ord: PhantomData<fn() -> O>,
+	/// The register type used for storage.
+	_typ: PhantomData<fn() -> T>,
+	/// The length of the bitslice, in bits.
+	len: usize,
+	/// The starting bit index in the `T` storage element.
+	/// Must be `< bits_of<T>()`.
+	start_bit: usize,
+}
+
 #[repr(transparent)]
 #[doc = include_str!("../doc/slice/BitSlice.md")]
-pub struct BitSlice<T = usize, O = Lsb0>
+pub struct BitSliceV1<T = usize, O = Lsb0>
 where
 	T: BitStore,
 	O: BitOrder,

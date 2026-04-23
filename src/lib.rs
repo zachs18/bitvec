@@ -14,6 +14,8 @@
 	clippy::type_complexity,
 	unknown_lints
 )]
+#![feature(unsized_type)]
+#![feature(sized_hierarchy)]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;

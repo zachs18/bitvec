@@ -22,6 +22,7 @@ use core::{
 		Hasher,
 	},
 	iter::FromIterator,
+	marker::PointeeSized,
 };
 
 use tap::Pipe;
@@ -139,7 +140,7 @@ impl<T, O, Rhs> PartialEq<Rhs> for BitBox<T, O>
 where
 	T: BitStore,
 	O: BitOrder,
-	Rhs: ?Sized + PartialEq<BitSlice<T, O>>,
+	Rhs: PointeeSized + PartialEq<BitSlice<T, O>>,
 {
 	#[inline]
 	fn eq(&self, other: &Rhs) -> bool {
@@ -166,7 +167,7 @@ impl<T, O, Rhs> PartialOrd<Rhs> for BitBox<T, O>
 where
 	T: BitStore,
 	O: BitOrder,
-	Rhs: ?Sized + PartialOrd<BitSlice<T, O>>,
+	Rhs: PointeeSized + PartialOrd<BitSlice<T, O>>,
 {
 	#[inline]
 	fn partial_cmp(&self, other: &Rhs) -> Option<cmp::Ordering> {
