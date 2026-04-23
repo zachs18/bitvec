@@ -107,3 +107,7 @@ repository = "ferrilab/bitvec"
 
 [badges.maintenance]
 status = "passively-maintained"
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = ["cfg(tarpaulin_include)"]
