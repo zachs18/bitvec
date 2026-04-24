@@ -17,9 +17,6 @@ version = "0.0.0"
 path = "proc"
 optional = true
 
-[workspace]
-members = ["proc"]
-
 [features]
 nightly = []
 proc = ["proc_static_assertions"]

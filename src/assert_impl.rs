@@ -54,6 +54,7 @@
 /// [`assert_impl_not_all!`]: macro.assert_not_impl_all.html
 /// [`assert_impl_not_any!`]: macro.assert_not_impl_any.html
 #[macro_export]
+#[cfg(not(feature = "nightly"))]
 macro_rules! assert_impl_one {
     ($x:ty: $($t:path),+ $(,)?) => {
         const _: fn() = || {
@@ -71,6 +72,91 @@ macro_rules! assert_impl_one {
                 struct Token;
 
                 impl<T: ?Sized + $t> AmbiguousIfMoreThanOne<Token> for T {}
+            })+
+
+            // If there is only one specialized trait impl, type inference with
+            // `_` can be resolved and this can compile. Fails to compile if
+            // `$x` implements more than one `AmbiguousIfMoreThanOne<Token>` or
+            // does not implement any at all.
+            let _ = <$x as AmbiguousIfMoreThanOne<_>>::some_item;
+        };
+    };
+}
+
+/// Asserts that the type implements exactly one in a set of traits.
+///
+/// Related:
+/// - [`assert_impl_any!`]
+/// - [`assert_impl_all!`]
+/// - [`assert_impl_not_all!`]
+/// - [`assert_impl_not_any!`]
+///
+/// # Examples
+///
+/// Given some type `Foo`, it is expected to implement either `Snap`, `Crackle`,
+/// or `Pop`:
+///
+/// ```compile_fail
+/// # use static_assertions::assert_impl_one; fn main() {}
+/// struct Foo;
+///
+/// trait Snap {}
+/// trait Crackle {}
+/// trait Pop {}
+///
+/// assert_impl_one!(Foo: Snap, Crackle, Pop);
+/// ```
+///
+/// If _only_ `Crackle` is implemented, the assertion passes:
+///
+/// ```
+/// # use static_assertions::assert_impl_one; fn main() {}
+/// # struct Foo;
+/// # trait Snap {}
+/// # trait Crackle {}
+/// # trait Pop {}
+/// impl Crackle for Foo {}
+///
+/// assert_impl_one!(Foo: Snap, Crackle, Pop);
+/// ```
+///
+/// If `Snap` or `Pop` is _also_ implemented, the assertion fails:
+///
+/// ```compile_fail
+/// # use static_assertions::assert_impl_one; fn main() {}
+/// # struct Foo;
+/// # trait Snap {}
+/// # trait Crackle {}
+/// # trait Pop {}
+/// # impl Crackle for Foo {}
+/// impl Pop for Foo {}
+///
+/// assert_impl_one!(Foo: Snap, Crackle, Pop);
+/// ```
+///
+/// [`assert_impl_any!`]:     macro.assert_impl_any.html
+/// [`assert_impl_all!`]:     macro.assert_impl_all.html
+/// [`assert_impl_not_all!`]: macro.assert_not_impl_all.html
+/// [`assert_impl_not_any!`]: macro.assert_not_impl_any.html
+#[macro_export]
+#[cfg(feature = "nightly")]
+macro_rules! assert_impl_one {
+    ($x:ty: $($t:path),+ $(,)?) => {
+        const _: fn() = || {
+            // Generic trait that must be implemented for `$x` exactly once.
+            trait AmbiguousIfMoreThanOne<A>: ::core::marker::PointeeSized {
+                // Required for actually being able to reference the trait.
+                fn some_item() {}
+            }
+
+            // Creates multiple scoped `Token` types for each trait `$t`, over
+            // which a specialized `AmbiguousIfMoreThanOne<Token>` is
+            // implemented for every type that implements `$t`.
+            $({
+                #[allow(dead_code)]
+                struct Token;
+
+                impl<T: ::core::marker::PointeeSized + $t> AmbiguousIfMoreThanOne<Token> for T {}
             })+
 
             // If there is only one specialized trait impl, type inference with
