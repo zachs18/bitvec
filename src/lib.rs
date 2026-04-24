@@ -16,6 +16,8 @@
 )]
 #![feature(unsized_type)]
 #![feature(sized_hierarchy)]
+#![feature(ptr_metadata)]
+#![feature(ptr_metadata_v2)]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;

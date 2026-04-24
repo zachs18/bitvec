@@ -65,11 +65,8 @@ where
 	_ord: PhantomData<fn() -> O>,
 	/// The register type used for storage.
 	_typ: PhantomData<fn() -> T>,
-	/// The length of the bitslice, in bits.
-	len: usize,
-	/// The starting bit index in the `T` storage element.
-	/// Must be `< bits_of<T>()`.
-	start_bit: usize,
+	/// The length (in bits) of the bitslice, and three bits of the head bit index, encoded into a `usize`.
+	encoded: usize,
 }
 
 #[repr(transparent)]

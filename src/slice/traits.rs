@@ -22,6 +22,7 @@ use core::{
 	},
 	str,
 };
+use std::panic::{RefUnwindSafe, UnwindSafe};
 
 use wyz::fmt::FmtForward;
 
@@ -553,6 +554,20 @@ where
 unsafe impl<T, O> Sync for BitSlice<T, O>
 where
 	T: BitStore + Sync,
+	O: BitOrder,
+{
+}
+
+impl<T, O> UnwindSafe for BitSlice<T, O>
+where
+	T: BitStore + RefUnwindSafe,
+	O: BitOrder,
+{
+}
+
+impl<T, O> RefUnwindSafe for BitSlice<T, O>
+where
+	T: BitStore + RefUnwindSafe,
 	O: BitOrder,
 {
 }

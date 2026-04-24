@@ -4,6 +4,7 @@ use core::{
 	mem,
 	ptr,
 };
+use std::marker::PointeeSized;
 
 use funty::Integral;
 use tap::Pipe;
@@ -39,7 +40,7 @@ mod io;
 mod tests;
 
 #[doc = include_str!("../doc/field/BitField.md")]
-pub trait BitField {
+pub trait BitField: PointeeSized {
 	#[inline]
 	#[cfg(not(tarpaulin_include))]
 	#[doc = include_str!("../doc/field/BitField_load.md")]

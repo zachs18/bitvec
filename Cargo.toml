@@ -55,6 +55,7 @@ std = [
 ]
 testing = [
 ]
+verbose = []
 
 [dependencies]
 radium = "0.7"
@@ -70,7 +71,8 @@ optional = true
 version = "1"
 
 [dependencies.wyz]
-version = "0.5"
+# version = "0.5"
+path = "../wyz"
 default-features = false
 
 # Crates required when running the test suite.
@@ -81,7 +83,7 @@ rand = "0.8"
 serde = "1"
 serde_json = "1"
 serde_test = "1"
-static_assertions = "1"
+static_assertions = { path = "../static-assertions", features = ["nightly"] }
 
 # [[bench]]
 # name = "memcpy"
@@ -110,4 +112,4 @@ status = "passively-maintained"
 
 [lints.rust.unexpected_cfgs]
 level = "warn"
-check-cfg = ["cfg(tarpaulin_include)"]
+check-cfg = ["cfg(tarpaulin_include)", "cfg(tarpaulin)"]

@@ -19,6 +19,8 @@ use core::{
 	},
 	marker::Unpin,
 };
+#[cfg(not(tarpaulin_include))]
+use std::marker::PointeeSized;
 
 use tap::TryConv;
 
@@ -111,7 +113,7 @@ impl<A, O, Rhs> PartialEq<Rhs> for BitArray<A, O>
 where
 	A: BitViewSized,
 	O: BitOrder,
-	Rhs: ?Sized,
+	Rhs: PointeeSized,
 	BitSlice<A::Store, O>: PartialEq<Rhs>,
 {
 	#[inline]
@@ -138,7 +140,7 @@ impl<A, O, Rhs> PartialOrd<Rhs> for BitArray<A, O>
 where
 	A: BitViewSized,
 	O: BitOrder,
-	Rhs: ?Sized,
+	Rhs: PointeeSized,
 	BitSlice<A::Store, O>: PartialOrd<Rhs>,
 {
 	#[inline]

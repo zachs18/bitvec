@@ -26,6 +26,8 @@ use core::{
 	},
 	marker::Unpin,
 };
+#[cfg(not(tarpaulin_include))]
+use std::marker::PointeeSized;
 
 use super::BitVec;
 use crate::{
@@ -139,7 +141,7 @@ impl<T, O, Rhs> PartialEq<Rhs> for BitVec<T, O>
 where
 	T: BitStore,
 	O: BitOrder,
-	Rhs: ?Sized + PartialEq<BitSlice<T, O>>,
+	Rhs: PointeeSized + PartialEq<BitSlice<T, O>>,
 {
 	#[inline]
 	fn eq(&self, other: &Rhs) -> bool {
@@ -194,7 +196,7 @@ impl<T, O, Rhs> PartialOrd<Rhs> for BitVec<T, O>
 where
 	T: BitStore,
 	O: BitOrder,
-	Rhs: ?Sized + PartialOrd<BitSlice<T, O>>,
+	Rhs: PointeeSized + PartialOrd<BitSlice<T, O>>,
 {
 	#[inline]
 	fn partial_cmp(&self, other: &Rhs) -> Option<cmp::Ordering> {

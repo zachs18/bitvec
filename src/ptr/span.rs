@@ -512,7 +512,8 @@ where
 	/// This is a noöp.
 	pub(crate) fn into_bitslice_ptr(self) -> *const BitSlice<T, O> {
 		let Self { ptr, len, .. } = self;
-		ptr::slice_from_raw_parts(ptr.as_ptr(), len) as *const BitSlice<T, O>
+		let meta = ptr::build_metadata!(for BitSlice<T, O>; encoded: len, _ord: PhantomData, _typ: PhantomData, ..);
+		ptr::from_raw_parts(ptr.as_ptr(), meta)
 	}
 
 	/// Converts the span descriptor into a shared `BitSlice` reference.
@@ -571,15 +572,14 @@ where
 {
 	/// Creates a `Const` span descriptor from a `const` bit-slice pointer.
 	pub(crate) fn from_bitslice_ptr(raw: *const BitSlice<T, O>) -> Self {
-		let slice_nn = match NonNull::new(raw as *const [()] as *mut [()]) {
+		let (raw, meta) = raw.to_raw_parts();
+		let ptr = match NonNull::new(raw.cast_mut()) {
 			Some(nn) => nn,
 			None => return Self::EMPTY,
 		};
-		let ptr = slice_nn.cast::<()>();
-		let len = unsafe { slice_nn.as_ref() }.len();
 		Self {
 			ptr,
-			len,
+			len: meta.encoded,
 			..Self::EMPTY
 		}
 	}
