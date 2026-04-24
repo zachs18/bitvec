@@ -1,0 +1,8 @@
+[workspace]
+resolver = "3"
+members = [
+    "bitvec",
+    "wyz",
+    "static-assertions",
+    "static-assertions/proc",
+]
