@@ -1,5 +1,6 @@
 #![no_std]
 #![deny(unsafe_code)]
+#![cfg_attr(feature = "nightly", feature(sized_hierarchy))]
 
 #[macro_use]
 extern crate static_assertions;

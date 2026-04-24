@@ -8,6 +8,7 @@
 /// All types that implement [`Copy`] must implement [`Clone`]:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_trait_sub_all!(Copy: Clone);
 /// ```
@@ -16,6 +17,7 @@
 /// [`PartialOrd`]:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_trait_sub_all!(Ord: PartialEq, Eq, PartialOrd);
 /// ```
@@ -24,6 +26,7 @@
 /// [`PartialOrd`]:
 ///
 /// ```compile_fail
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_trait_sub_all!(PartialOrd: Eq);
 /// ```
@@ -54,6 +57,7 @@ macro_rules! assert_trait_sub_all {
 /// single line:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # use static_assertions::assert_trait_super_all;
 /// trait A: Copy {}
 /// trait B: Copy {}
@@ -65,6 +69,7 @@ macro_rules! assert_trait_sub_all {
 /// [`assert_trait_sub_all!`]:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// # trait A: Copy {}
 /// # trait B: Copy {}
@@ -76,6 +81,7 @@ macro_rules! assert_trait_sub_all {
 /// [`Copy`]:
 ///
 /// ```compile_fail
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # use static_assertions::assert_trait_super_all;
 /// # trait A: Copy {}
 /// # trait B: Copy {}
@@ -104,6 +110,7 @@ macro_rules! assert_trait_super_all {
 /// All types that implement [`Copy`] must implement [`Clone`]:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_trait_sub_any!(Copy: Clone);
 /// ```
@@ -111,6 +118,7 @@ macro_rules! assert_trait_super_all {
 /// All types that implement [`Ord`] must implement [`Eq`], but don't have to implement [`Clone`]:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_trait_sub_any!(Ord: Eq, Clone);
 /// ```
@@ -119,6 +127,7 @@ macro_rules! assert_trait_super_all {
 /// [`PartialOrd`]:
 ///
 /// ```compile_fail
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_trait_sub_any!(PartialOrd: Eq, Clone);
 /// ```

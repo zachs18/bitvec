@@ -97,6 +97,7 @@ macro_rules! assert_impl_one {
 /// or `Pop`:
 ///
 /// ```compile_fail
+/// #![feature(sized_hierarchy)]
 /// # use static_assertions::assert_impl_one; fn main() {}
 /// struct Foo;
 ///
@@ -110,6 +111,7 @@ macro_rules! assert_impl_one {
 /// If _only_ `Crackle` is implemented, the assertion passes:
 ///
 /// ```
+/// #![feature(sized_hierarchy)]
 /// # use static_assertions::assert_impl_one; fn main() {}
 /// # struct Foo;
 /// # trait Snap {}
@@ -123,6 +125,7 @@ macro_rules! assert_impl_one {
 /// If `Snap` or `Pop` is _also_ implemented, the assertion fails:
 ///
 /// ```compile_fail
+/// #![feature(sized_hierarchy)]
 /// # use static_assertions::assert_impl_one; fn main() {}
 /// # struct Foo;
 /// # trait Snap {}
@@ -144,7 +147,7 @@ macro_rules! assert_impl_one {
     ($x:ty: $($t:path),+ $(,)?) => {
         const _: fn() = || {
             // Generic trait that must be implemented for `$x` exactly once.
-            trait AmbiguousIfMoreThanOne<A>: ::core::marker::PointeeSized {
+            trait AmbiguousIfMoreThanOne<A>: $crate::_core::marker::PointeeSized {
                 // Required for actually being able to reference the trait.
                 fn some_item() {}
             }
@@ -156,7 +159,7 @@ macro_rules! assert_impl_one {
                 #[allow(dead_code)]
                 struct Token;
 
-                impl<T: ::core::marker::PointeeSized + $t> AmbiguousIfMoreThanOne<Token> for T {}
+                impl<T: $crate::_core::marker::PointeeSized + $t> AmbiguousIfMoreThanOne<Token> for T {}
             })+
 
             // If there is only one specialized trait impl, type inference with
@@ -178,6 +181,7 @@ macro_rules! assert_impl_one {
 /// [`Sync`], as well as traits with [blanket `impl`s][blanket].
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_all!(u32: Copy, Send);
 /// assert_impl_all!(&str: Into<String>);
@@ -187,6 +191,7 @@ macro_rules! assert_impl_one {
 /// [`Send`] since they cannot be moved between threads safely:
 ///
 /// ```compile_fail
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_all!(*const u8: Send);
 /// ```
@@ -211,6 +216,7 @@ macro_rules! assert_impl_all {
 /// `u8` cannot be converted from `u16`, but it can be converted into `u16`:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_any!(u8: From<u16>, Into<u16>);
 /// ```
@@ -219,6 +225,7 @@ macro_rules! assert_impl_all {
 /// [`Send`]:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_any!((): From<u8>, From<u16>, Send);
 /// ```
@@ -228,6 +235,7 @@ macro_rules! assert_impl_all {
 /// safely:
 ///
 /// ```compile_fail
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_any!(*const u8: Send, Sync);
 /// ```
@@ -256,6 +264,7 @@ macro_rules! assert_impl_any {
 /// Although `u32` implements `From<u16>`, it does not implement `Into<usize>`:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_not_all!(u32: From<u16>, Into<usize>);
 /// ```
@@ -264,6 +273,7 @@ macro_rules! assert_impl_any {
 /// `u64`.
 ///
 /// ```compile_fail
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_not_all!(u32: Into<u64>);
 /// ```
@@ -271,6 +281,7 @@ macro_rules! assert_impl_any {
 /// The following compiles because [`Cell`] is not both [`Sync`] _and_ [`Send`]:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// use std::cell::Cell;
 ///
@@ -280,6 +291,7 @@ macro_rules! assert_impl_any {
 /// But it is [`Send`], so this fails to compile:
 ///
 /// ```compile_fail
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// # std::cell::Cell;
 /// assert_impl_not_all!(Cell<u32>: Send);
@@ -328,6 +340,7 @@ macro_rules! assert_not_impl_all {
 /// the following would fail to compile:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_not_any!(u32: Into<usize>, Into<u8>);
 /// ```
@@ -335,6 +348,7 @@ macro_rules! assert_not_impl_all {
 /// This is also good for simple one-off cases:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_not_any!(&'static mut u8: Copy);
 /// ```
@@ -343,6 +357,7 @@ macro_rules! assert_not_impl_all {
 /// `u64` even though it can not be converted into a `u16`:
 ///
 /// ```compile_fail
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl_not_any!(u32: Into<u64>, Into<u16>);
 /// ```
@@ -411,6 +426,7 @@ macro_rules! assert_not_impl_any {
 /// the following would fail to compile:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl!(u32: !((Into<usize>) & (Into<u8>)));
 /// ```
@@ -418,6 +434,7 @@ macro_rules! assert_not_impl_any {
 /// Check that a type is [`Send`] but not [`Sync`].
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// use std::cell::Cell;
 ///
@@ -427,6 +444,7 @@ macro_rules! assert_not_impl_any {
 /// Check simple one-off cases:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl!(&'static mut u8: !Copy);
 /// ```
@@ -434,6 +452,7 @@ macro_rules! assert_not_impl_any {
 /// Check that a type is _always_ [`Clone`] even when its parameter isn't:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// use std::rc::Rc;
 ///
@@ -444,6 +463,7 @@ macro_rules! assert_not_impl_any {
 /// either `u32` or `u16`:
 ///
 /// ```compile_fail
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_impl!(u64: (Into<u32>) | (Into<u16>));
 /// ```

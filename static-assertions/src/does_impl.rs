@@ -5,6 +5,7 @@
 /// One can mimic `assert_impl!` using this macro:
 ///
 /// ```
+#[cfg_attr(feature = "nightly", doc = "# #![feature(sized_hierarchy)]")]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// const CONDITION: bool = does_impl!(u32: From<u8>);
 ///
@@ -126,10 +127,10 @@ macro_rules! _does_impl {
 
         // Fallback trait that returns false if the type does not implement a
         // given trait.
-        trait DoesntImpl: ::core::marker::PointeeSized {
+        trait DoesntImpl: $crate::_core::marker::PointeeSized {
             const DOES_IMPL: False = False;
         }
-        impl<T: ::core::marker::PointeeSized> DoesntImpl for T {}
+        impl<T: $crate::_core::marker::PointeeSized> DoesntImpl for T {}
 
         // Construct an expression using `True`/`False` and their operators,
         // that corresponds to the provided expression.
@@ -185,10 +186,10 @@ macro_rules! _does_impl {
 
     (@base($ty:ty, $($args:tt)*) $($trait:tt)*) => {{
         // Base case: computes whether `ty` implements `trait`.
-        struct Wrapper<T: ::core::marker::PointeeSized>(PhantomData<T>);
+        struct Wrapper<T: $crate::_core::marker::PointeeSized>(PhantomData<T>);
 
         #[allow(dead_code)]
-        impl<T: ::core::marker::PointeeSized + $($trait)*> Wrapper<T> {
+        impl<T: $crate::_core::marker::PointeeSized + $($trait)*> Wrapper<T> {
             const DOES_IMPL: True = True;
         }
 

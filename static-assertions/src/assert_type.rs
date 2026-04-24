@@ -76,6 +76,7 @@ macro_rules! assert_type_eq_all {
 /// types like [`c_float`] will always alias the same type.
 ///
 /// ```
+/// #![feature(sized_hierarchy)]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// use std::os::raw::c_float;
 ///
@@ -86,6 +87,7 @@ macro_rules! assert_type_eq_all {
 /// use `'static` in that case:
 ///
 /// ```
+/// #![feature(sized_hierarchy)]
 /// # #[macro_use] extern crate static_assertions;
 /// # fn main() {
 /// type Buf<'a> = &'a [u8];
@@ -98,6 +100,7 @@ macro_rules! assert_type_eq_all {
 /// refer to the same type:
 ///
 /// ```compile_fail
+/// #![feature(sized_hierarchy)]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_type_eq_all!(String, str);
 /// ```
@@ -106,6 +109,7 @@ macro_rules! assert_type_eq_all {
 /// implementations.
 ///
 /// ```compile_fail
+/// #![feature(sized_hierarchy)]
 /// # #[macro_use] extern crate static_assertions; fn main() {}
 /// assert_type_eq_all!(str, String);
 /// ```
@@ -117,18 +121,18 @@ macro_rules! assert_type_eq_all {
 macro_rules! assert_type_eq_all {
     ($x:ty, $($xs:ty),+ $(,)*) => {
         const _: fn() = || { $({
-            trait TypeEq: ::core::marker::PointeeSized {
-                type This: ::core::marker::PointeeSized;
+            trait TypeEq: $crate::_core::marker::PointeeSized {
+                type This: $crate::_core::marker::PointeeSized;
             }
 
-            impl<T: ::core::marker::PointeeSized> TypeEq for T {
+            impl<T: $crate::_core::marker::PointeeSized> TypeEq for T {
                 type This = Self;
             }
 
             fn assert_type_eq_all<T, U>()
             where
-                T: ::core::marker::PointeeSized + TypeEq<This = U>,
-                U: ::core::marker::PointeeSized,
+                T: $crate::_core::marker::PointeeSized + TypeEq<This = U>,
+                U: $crate::_core::marker::PointeeSized,
             {}
 
             assert_type_eq_all::<$x, $xs>();
