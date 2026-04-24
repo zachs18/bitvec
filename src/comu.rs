@@ -11,17 +11,9 @@ permissions into type parameters rather than duplicate structures.
 use core::{
 	cmp,
 	convert::TryFrom,
-	fmt::{
-		self,
-		Debug,
-		Display,
-		Formatter,
-		Pointer,
-	},
-	hash::{
-		Hash,
-		Hasher,
-	},
+	fmt::{self, Debug, Display, Formatter, Pointer},
+	hash::{Hash, Hasher},
+	marker::PointeeSized,
 	ops::Deref,
 	ptr::NonNull,
 	slice,
@@ -40,7 +32,8 @@ pub struct Mut;
 /// A frozen wrapper over some other `Mutability` marker.
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Frozen<Inner>
-where Inner: Mutability
+where
+	Inner: Mutability,
 {
 	inner: Inner,
 }
@@ -90,11 +83,11 @@ impl Mutability for Const {
 	const SELF: Self = Self;
 }
 
-impl self::seal::Sealed for Const {
-}
+impl self::seal::Sealed for Const {}
 
 impl<Inner> Mutability for Frozen<Inner>
-where Inner: Mutability + Sized
+where
+	Inner: Mutability + Sized,
 {
 	const CONTAINS_MUTABILITY: bool = Inner::CONTAINS_MUTABILITY;
 	const PEANO_NUMBER: usize = 1 + Inner::PEANO_NUMBER;
@@ -102,9 +95,7 @@ where Inner: Mutability + Sized
 	const SELF: Self = Self { inner: Inner::SELF };
 }
 
-impl<Inner> self::seal::Sealed for Frozen<Inner> where Inner: Mutability + Sized
-{
-}
+impl<Inner> self::seal::Sealed for Frozen<Inner> where Inner: Mutability + Sized {}
 
 impl Mutability for Mut {
 	const CONTAINS_MUTABILITY: bool = true;
@@ -112,8 +103,7 @@ impl Mutability for Mut {
 	const SELF: Self = Self;
 }
 
-impl self::seal::Sealed for Mut {
-}
+impl self::seal::Sealed for Mut {}
 
 /** A generic non-null pointer with type-system mutability tracking.
 
@@ -125,7 +115,7 @@ impl self::seal::Sealed for Mut {
 pub struct Address<M, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 	/// The address value.
 	inner: NonNull<T>,
@@ -134,7 +124,8 @@ where
 }
 
 impl<M, T> Address<M, T>
-where M: Mutability
+where
+	M: Mutability,
 {
 	/// The dangling pointer.
 	pub const DANGLING: Self = Self {
@@ -146,7 +137,7 @@ where M: Mutability
 impl<M, T> Address<M, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 	/// Constructs a new `Address` over some pointer value.
 	///
@@ -222,7 +213,7 @@ impl<T> Address<Mut, T> {
 impl<M, T> Address<Frozen<M>, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 	/// Thaws the `Address` to its original mutability permission.
 	#[inline(always)]
@@ -290,7 +281,8 @@ macro_rules! map {
 /// Port of the pointer inherent methods on `Address`es of `Sized` types.
 #[allow(clippy::missing_safety_doc)]
 impl<M, T> Address<M, T>
-where M: Mutability
+where
+	M: Mutability,
 {
 	fwd! {
 		cast<U> => Address<M, U>;
@@ -317,7 +309,7 @@ where M: Mutability
 impl<M, T> Address<M, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 	map! {
 		@unsafe as_ref<'a> => Option<&'a T>;
@@ -350,7 +342,8 @@ impl<T> Address<Mut, T> {
 
 /// Port of pointer inherent methods on mutable `Address`es of any type.
 impl<T> Address<Mut, T>
-where T: ?Sized
+where
+	T: PointeeSized,
 {
 	map! {
 		@unsafe as_mut<'a> => Option<&'a mut T>;
@@ -361,7 +354,7 @@ where T: ?Sized
 impl<M, T> Clone for Address<M, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 	#[inline(always)]
 	fn clone(&self) -> Self {
@@ -370,7 +363,8 @@ where
 }
 
 impl<T> TryFrom<*const T> for Address<Const, T>
-where T: ?Sized
+where
+	T: PointeeSized,
 {
 	type Error = NullPtrError;
 
@@ -383,7 +377,8 @@ where T: ?Sized
 }
 
 impl<T> From<&T> for Address<Const, T>
-where T: ?Sized
+where
+	T: PointeeSized,
 {
 	#[inline(always)]
 	fn from(elem: &T) -> Self {
@@ -392,7 +387,8 @@ where T: ?Sized
 }
 
 impl<T> TryFrom<*mut T> for Address<Mut, T>
-where T: ?Sized
+where
+	T: PointeeSized,
 {
 	type Error = NullPtrError;
 
@@ -403,7 +399,8 @@ where T: ?Sized
 }
 
 impl<T> From<&mut T> for Address<Mut, T>
-where T: ?Sized
+where
+	T: PointeeSized,
 {
 	#[inline(always)]
 	fn from(elem: &mut T) -> Self {
@@ -411,9 +408,7 @@ where T: ?Sized
 	}
 }
 
-impl<M, T> Eq for Address<M, T> where M: Mutability
-{
-}
+impl<M, T> Eq for Address<M, T> where M: Mutability {}
 
 impl<M1, M2, T1, T2> PartialEq<Address<M2, T2>> for Address<M1, T1>
 where
@@ -427,7 +422,8 @@ where
 }
 
 impl<M, T> Ord for Address<M, T>
-where M: Mutability
+where
+	M: Mutability,
 {
 	#[inline]
 	fn cmp(&self, other: &Self) -> cmp::Ordering {
@@ -451,7 +447,7 @@ where
 impl<M, T> Debug for Address<M, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 	#[inline(always)]
 	fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
@@ -462,7 +458,7 @@ where
 impl<M, T> Pointer for Address<M, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 	#[inline(always)]
 	fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
@@ -473,11 +469,13 @@ where
 impl<M, T> Hash for Address<M, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 	#[inline(always)]
 	fn hash<H>(&self, state: &mut H)
-	where H: Hasher {
+	where
+		H: Hasher,
+	{
 		self.inner.hash(state)
 	}
 }
@@ -485,14 +483,14 @@ where
 impl<M, T> Copy for Address<M, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 }
 
 impl<M, T> self::seal::Sealed for Address<M, T>
 where
 	M: Mutability,
-	T: ?Sized,
+	T: PointeeSized,
 {
 }
 
@@ -515,7 +513,8 @@ pub trait Referential<'a>: self::seal::Sealed {
 }
 
 impl<'a, T> Referential<'a> for Address<Const, T>
-where T: 'a + ?Sized
+where
+	T: 'a + PointeeSized,
 {
 	type Ref = &'a T;
 
@@ -529,7 +528,8 @@ where T: 'a + ?Sized
 }
 
 impl<'a, T> Referential<'a> for Address<Mut, T>
-where T: 'a + ?Sized
+where
+	T: 'a + PointeeSized,
 {
 	type Ref = &'a mut T;
 
@@ -545,7 +545,7 @@ where T: 'a + ?Sized
 impl<'a, M, T> Referential<'a> for Address<Frozen<M>, T>
 where
 	M: Mutability,
-	T: 'a + ?Sized,
+	T: 'a + PointeeSized,
 {
 	type Ref = &'a T;
 
@@ -581,7 +581,8 @@ pub trait SliceReferential<'a>: Referential<'a> + self::seal::Sealed {
 }
 
 impl<'a, T> SliceReferential<'a> for Address<Const, [T]>
-where T: 'a
+where
+	T: 'a,
 {
 	type ElementAddr = Address<Const, T>;
 
@@ -603,7 +604,8 @@ where
 }
 
 impl<'a, T> SliceReferential<'a> for Address<Mut, [T]>
-where T: 'a
+where
+	T: 'a,
 {
 	type ElementAddr = Address<Mut, T>;
 
@@ -624,8 +626,7 @@ impl Display for NullPtrError {
 }
 
 #[cfg(feature = "std")]
-impl std::error::Error for NullPtrError {
-}
+impl std::error::Error for NullPtrError {}
 
 #[doc(hidden)]
 mod seal {

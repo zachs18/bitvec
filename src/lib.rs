@@ -10,6 +10,7 @@ largely independent, and can be used individually.
 #![no_std]
 #![cfg_attr(debug_assertions, warn(missing_docs))]
 #![cfg_attr(not(debug_assertions), deny(missing_docs))]
+#![feature(sized_hierarchy)]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
@@ -35,9 +36,6 @@ pub use self::{
 	fmt::*,
 	range::*,
 };
-
-#[cfg(feature = "std")]
-pub use self::exit::*;
 
 #[cfg(all(feature = "std", feature = "garbage"))]
 pub use self::wm::{
