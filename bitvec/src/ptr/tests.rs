@@ -22,31 +22,31 @@ fn free_functions() {
 	let mut b = 255u16;
 
 	let one = BitPtr::<Mut, u8, Lsb0>::from_slice_mut(&mut a[..]);
+    let a = one.pointer().cast::<[u8; 2]>();
 	let two = one.wrapping_add(8);
 	let three = BitPtr::<Mut, u16, Msb0>::from_mut(&mut b);
+    let b = three.pointer();
 	let four = three.wrapping_add(8);
 
 	unsafe {
 		bv_ptr::copy(two.to_const(), one, 8);
-	}
-	assert_eq!(a[0], !0);
-	unsafe {
+    	assert_eq!(*a, [!0, !0]);
 		bv_ptr::copy(three.to_const(), one, 8);
+    	assert_eq!(*a, [0, !0]);
 	}
-	assert_eq!(a[0], 0);
 
 	assert!(!bv_ptr::eq(two.to_const(), one.to_const()));
 
 	unsafe {
 		bv_ptr::swap_nonoverlapping(two, three, 8);
+	    assert_eq!(*a, [0, 0]);
+    	assert_eq!(*b, !0);
 	}
-	assert_eq!(a[1], 0);
-	assert_eq!(b, !0);
 
 	unsafe {
 		bv_ptr::write_bits(four, false, 8);
+    	assert_eq!(*b, 0xFF00);
 	}
-	assert_eq!(b, 0xFF00);
 }
 
 #[test]

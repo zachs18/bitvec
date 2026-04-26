@@ -273,10 +273,11 @@ where
 	/// [`::new`]: Self::new
 	#[cfg(feature = "alloc")]
 	pub(crate) unsafe fn set_address(&mut self, addr: Address<M, T>) {
-		let mut addr_value = addr.to_const() as usize;
-		addr_value &= Self::PTR_ADDR_MASK;
-		addr_value |= self.ptr.as_ptr() as usize & Self::PTR_HEAD_MASK;
-		self.ptr = NonNull::new_unchecked(addr_value as *mut ())
+        self.ptr = NonNull::new_unchecked(addr.to_const().map_addr(|mut addr_value| {
+    		addr_value &= Self::PTR_ADDR_MASK;
+	    	addr_value |= self.ptr.as_ptr() as usize & Self::PTR_HEAD_MASK;
+            addr_value
+        }) as _);
 	}
 
 	/// Gets the starting bit index of the referent region.
@@ -313,10 +314,11 @@ where
 	#[cfg(feature = "alloc")]
 	pub(crate) unsafe fn set_head(&mut self, head: BitIdx<T::Mem>) {
 		let head = head.into_inner() as usize;
-		let mut ptr = self.ptr.as_ptr() as usize;
-
-		ptr &= Self::PTR_ADDR_MASK;
-		ptr |= head >> Self::LEN_HEAD_BITS;
+		let ptr = self.ptr.as_ptr().map_addr(|mut ptr| {
+    		ptr &= Self::PTR_ADDR_MASK;
+	    	ptr |= head >> Self::LEN_HEAD_BITS;
+            ptr
+        });
 		self.ptr = NonNull::new_unchecked(ptr as *mut ());
 
 		self.len &= !Self::LEN_HEAD_MASK;
